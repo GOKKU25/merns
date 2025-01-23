@@ -17,7 +17,10 @@ const Admin = () => {
     setError('');
     setSuccessMessage(''); 
 
+    console.log('Submitting login with:', { username, password });
+
     try {
+     
       const response = await axios.post('http://localhost:5000/api/admin/login', {
         username,
         password,
@@ -28,10 +31,10 @@ const Admin = () => {
 
       console.log('Login successful!');
       setSuccessMessage('Login successful!');
-      navigate('/home'); 
+      navigate('/home');
 
     } catch (err) {
-      if (err.response?.status === 401) {
+      if (err.response?.status === 400) {
         setError('Invalid credentials. Please try again.');
       } else {
         setError('An unexpected error occurred. Please try again later.');
