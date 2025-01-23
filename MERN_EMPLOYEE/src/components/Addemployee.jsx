@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const AddEmployee = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [employeeID, setEmployeeID] = useState('');
   const [name, setName] = useState('');
   const [designation, setDesignation] = useState('');
@@ -13,7 +13,7 @@ const AddEmployee = () => {
   const [department, setDepartment] = useState('');
   const [locationInput, setLocation] = useState('');
   const [message, setMessage] = useState('');
-  const [isEdit, setIsEdit] = useState(false);  
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     if (location.state?.employee) {
@@ -30,6 +30,7 @@ const AddEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage(''); 
 
     const employeeData = {
       employeeId: employeeID,
@@ -40,10 +41,11 @@ const AddEmployee = () => {
       location: locationInput,
     };
 
+    console.log("Sending data to backend:", employeeData);
+
     try {
       let response;
       if (isEdit) {
-      
         response = await fetch(`http://localhost:5000/api/employees/${employeeID}`, {
           method: 'PUT',
           headers: {
@@ -52,7 +54,6 @@ const AddEmployee = () => {
           body: JSON.stringify(employeeData),
         });
       } else {
-      
         response = await fetch('http://localhost:5000/api/employees', {
           method: 'POST',
           headers: {
@@ -70,13 +71,14 @@ const AddEmployee = () => {
         setSalary('');
         setDepartment('');
         setLocation('');
-       
         navigate('/home');
       } else {
-        setMessage(isEdit ? 'Error updating employee. Please try again.' : 'Error adding employee. Please try again.');
+        const errorData = await response.json();
+        console.error('Error:', errorData);
+        setMessage(isEdit ? `Error updating employee: ${errorData.message}` : `Error adding employee: ${errorData.message}`);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Network error:', error);
       setMessage('Network error. Please try again.');
     }
   };
@@ -120,7 +122,7 @@ const AddEmployee = () => {
           value={employeeID}
           onChange={(e) => setEmployeeID(e.target.value)}
           required
-          disabled={isEdit} 
+          disabled={isEdit}
         />
 
         <TextField
